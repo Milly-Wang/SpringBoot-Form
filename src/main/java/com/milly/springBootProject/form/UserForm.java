@@ -11,7 +11,6 @@ import javax.validation.constraints.Pattern;
 public class UserForm {
     @NotBlank
     private String username;
-    @NotBlank
     @Length(min = 6,message = "length >= 6")
     private String password;
 //    @Pattern(regexp = "")
@@ -77,6 +76,13 @@ public class UserForm {
             BeanUtils.copyProperties(userForm,user);
             return user;
         }
+    }
+
+    public boolean confirmPassword() {
+        if(this.password.equals(this.confirmPassword)) {
+            return true;
+        }
+        return false;
     }
 
 }

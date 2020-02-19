@@ -5,6 +5,7 @@ import com.milly.springBootProject.domain.UserRepository;
 import com.milly.springBootProject.form.UserForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +21,8 @@ public class LoginController {
     private UserRepository userRepository;
 
     @GetMapping("/register")
-    public String register() {
+    public String register(Model model) {
+        model.addAttribute("userForm", new UserForm());
         return "register";
     }
     @GetMapping("/login")
@@ -29,18 +31,29 @@ public class LoginController {
     }
 
     @PostMapping("/register")
-    public String registerPost(@Valid UserForm userForm, BindingResult result){
-//        User user = new UserFormConvert().convert(userForm);
-        if(result.hasErrors()) {
-            List<FieldError> fieldErrors = result.getFieldErrors();
-            for(FieldError error : fieldErrors) {
-                System.out.println(error.getField() + error.getDefaultMessage() + error.getCode());
-            }
+    public String registerPost(@Valid UserForm userForm, BindingResult result, Model model){
+        if (!userForm.confirmPassword()) {
+            result.rejectValue("confirmPassword","confirmError", "password not matched");
+        }
+        if (result.hasErrors()) {
             return "register";
         }
+//        User user = new UserFormConvert().convert(userForm);
+//        if(result.hasErrors()) {
+//            List<FieldError> fieldErrors = result.getFieldErrors();
+//            for(FieldError error : fieldErrors) {
+//                System.out.println(error.getField() + error.getDefaultMessage() + error.getCode());
+//            }
+//            return "register";
+//        }
         User user = userForm.convertToUser();
         userRepository.save(user);
         return "redirect:/login";
+    }
+
+    @GetMapping("/exception")
+    public String testException() {
+        throw new RuntimeException("testException");
     }
 
 //    public User convertFor(UserForm userForm) {
